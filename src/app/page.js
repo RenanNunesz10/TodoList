@@ -1,95 +1,78 @@
-import Image from "next/image";
+'use client'
+import { useEffect, useState } from "react";
 import styles from "./page.module.css";
+import { CgMathPlus } from "react-icons/cg";
+import { FaRegTrashAlt } from "react-icons/fa";
+import { v4 as uuid } from "uuid";
+import { addTask, deleteTask, getTasks, updateTask } from "@/utils/api";
 
-export default function Home() {
-  return (
-    <main className={styles.main}>
-      <div className={styles.description}>
-        <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>src/app/page.js</code>
-        </p>
-        <div>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{" "}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
-        </div>
-      </div>
+export default function Home(){
+    const [tasks, setTasks] = useState(null);
+    const [tarefa, setTarefa] = useState("");
+    const [completed, setCompleted] = useState(false);
 
-      <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
+    useEffect(() => {
+        getTasks().then((data) => setTasks(data));
+    }, []);
 
-      <div className={styles.grid}>
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p>Find in-depth information about Next.js features and API.</p>
-        </a>
+    function changeTarefa(event){
+        setTarefa(event.target.value);
+    }
 
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Learn <span>-&gt;</span>
-          </h2>
-          <p>Learn about Next.js in an interactive course with&nbsp;quizzes!</p>
-        </a>
+    function handleAddTarefa(event){
+        event.preventDefault();
+        const id = uuid();
+        const text = tarefa;
+        const newTask = { id, text, completed };
 
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p>Explore starter templates for Next.js.</p>
-        </a>
+        addTask(newTask).then((status) => {
+            if(status === 201) {
+                getTasks().then((data) => setTasks(data));
+                setTarefa("");
+                setCompleted(false);
+            }
+        });
+    }
 
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
-  );
+    function handleDeleteTask(id){
+        deleteTask(id).then((status) => {
+            if(status === 200) {
+                getTasks().then((data) => setTasks(data));
+            }
+        });
+    }
+
+    return(
+        <>
+            <div className={styles.body}>
+                <div className={styles.container}>
+                <h1 className={styles.h1}>TODO List</h1>
+                    <form onSubmit={handleAddTarefa}>
+                        <div className={styles.divInput}>
+                            <input type="text" value={tarefa} onChange={changeTarefa} className={styles.input} placeholder="Digite a nova tarefa"/>
+                            <button type="submit" className={styles.addButton}>
+                                <CgMathPlus />
+                            </button>
+                        </div>
+                    </form>
+                    <br /><br />
+                    <div className={styles.taskList}>
+                    {tasks && tasks.map(task => (
+                        <div key={task.id}>
+                            <div className={styles.tarefa}>
+                                <div className={styles.divTarefa}>
+                                <input type="checkbox" className={styles.checkbox}/>
+                                <p><strong>{task.text}</strong></p>
+                                </div>                          
+                            <button onClick={() => handleDeleteTask(task.id)} className={styles.deleteButton}>
+                                <FaRegTrashAlt />
+                            </button>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+                </div>
+            </div>
+        </>
+    );
 }

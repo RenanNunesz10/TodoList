@@ -1,0 +1,24 @@
+{
+  "tasks": [
+    {
+      "id": "1",
+      "text": "Tarefa 1",
+      "completed": false
+    },
+    {
+      "id": "2",
+      "text": "Tarefa 2",
+      "completed": true
+    },
+    {
+      "id": "3",
+      "text": "Tarefa 3",
+      "completed": false
+    },
+    {
+      "id": "dd502da0-d2e2-4c90-add6-8dbe253cc668",
+      "text": "Tarefa 4",
+      "completed": false
+    }
+  ]
+}
